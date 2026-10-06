@@ -1,134 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Urban Flood Nowcasting Simulator</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Chart.js via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>💰 Expense Tracker</h1>
+            <p>Manage, track, and analyze your daily spending effortlessly.</p>
+        </header>
 
-<!-- ============ SCREEN 1 : CITY SELECTION ============ -->
-<section id="citySelectScreen" class="screen">
-  <div class="select-wrap">
-    <p class="eyebrow">Software-only simulation · inspired by SIH 2026 PS 26085</p>
-    <h1>Urban Flood Nowcasting Simulator</h1>
-    <p class="select-sub">
-      Pick a city to load its street grid. Rainfall, terrain and drainage are simulated —
-      no real sensors, no live data feed. Everything below runs from the maths in
-      <code>script.js</code>.
-    </p>
-    <div class="city-grid" id="cityGrid"><!-- city cards injected by script.js --></div>
-  </div>
-</section>
+        <!-- Summary Dashboard -->
+        <section class="dashboard-grid" aria-label="Expense Summary Dashboard">
+            <div class="card summary-card">
+                <span class="card-title">Total Expenses</span>
+                <span class="card-value" id="total-expenses">₹0.00</span>
+            </div>
+            <div class="card summary-card">
+                <span class="card-title">Transactions</span>
+                <span class="card-value" id="total-transactions">0</span>
+            </div>
+            <div class="card summary-card">
+                <span class="card-title">Average Expense</span>
+                <span class="card-value" id="avg-expense">₹0.00</span>
+            </div>
+        </section>
 
-<!-- ============ SCREEN 2 : SIMULATOR ============ -->
-<section id="simulatorScreen" class="screen hidden">
+        <!-- Main Content Area -->
+        <div class="main-layout">
+            <!-- Left Column: Add Expense Form & Visualization -->
+            <div class="left-column">
+                <section class="card form-card">
+                    <h2>Add New Expense</h2>
+                    <form id="expense-form" novalidate>
+                        <div class="form-group">
+                            <label for="title">Expense Title</label>
+                            <input type="text" id="title" placeholder="e.g. Grocery Shopping" required>
+                            <span class="error-msg" id="title-error"></span>
+                        </div>
 
-  <header class="topbar">
-    <div class="brand">
-      <button id="backBtn" class="back-btn" type="button" aria-label="Change city">←</button>
-      <div class="brand-text">
-        <h1 id="cityTitle">City</h1>
-        <p id="cityBlurb">—</p>
-      </div>
+                        <div class="form-group">
+                            <label for="amount">Amount (₹)</label>
+                            <input type="number" id="amount" placeholder="e.g. 250" step="0.01" min="0.01" required>
+                            <span class="error-msg" id="amount-error"></span>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <select id="category" required>
+                                    <option value="" disabled selected>Select Category</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Bills">Bills</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Health">Health</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span class="error-msg" id="category-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="date">Date</label>
+                                <input type="date" id="date" required>
+                                <span class="error-msg" id="date-error"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Expense</button>
+                    </form>
+                </section>
+
+                <section class="card chart-card">
+                    <h2>Spending Breakdown</h2>
+                    <div id="chart-container" class="chart-container">
+                        <canvas id="expense-chart"></canvas>
+                        <div id="chart-empty-state" class="chart-empty-state hidden">
+                            <p>No expense data available to display chart.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Expense History & Filter -->
+            <div class="right-column">
+                <section class="card list-card">
+                    <div class="list-header">
+                        <h2>Recent Transactions</h2>
+                        <div class="filter-group">
+                            <label for="filter-category" class="sr-only">Filter by Category</label>
+                            <select id="filter-category">
+                                <option value="All">All Categories</option>
+                                <option value="Food">Food</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Bills">Bills</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Education">Education</option>
+                                <option value="Health">Health</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Expense List View -->
+                    <div id="expense-list" class="expense-list"></div>
+
+                    <!-- Empty State -->
+                    <div id="empty-state" class="empty-state hidden">
+                        <div class="empty-icon">📝</div>
+                        <h3>No expenses found</h3>
+                        <p>Add your first expense or adjust your category filter to get started!</p>
+                    </div>
+                </section>
+            </div>
+        </div>
     </div>
-    <div class="topbar-right">
-      <div class="status-pill" id="cityStatus">Normal</div>
-    </div>
-  </header>
 
-  <main class="layout">
-
-    <section class="grid-panel">
-      <div class="grid-panel-head">
-        <div class="readout">
-          <span class="readout-label">Rainfall</span>
-          <span class="readout-value" id="rainReadout">0 mm/hr</span>
-        </div>
-        <div class="readout">
-          <span class="readout-label">Duration</span>
-          <span class="readout-value" id="durationReadout">0.0 hr</span>
-        </div>
-        <div class="readout">
-          <span class="readout-label">Zones affected</span>
-          <span class="readout-value" id="affectedReadout">0 / 64</span>
-        </div>
-      </div>
-
-      <div class="scene-wrap">
-        <canvas id="sceneCanvas"></canvas>
-        <div id="labelsOverlay" class="labels-overlay"></div>
-        <p class="scene-hint">Drag to rotate · scroll to zoom · click a block for details</p>
-      </div>
-
-      <div class="legend">
-        <span class="legend-item"><i class="swatch normal"></i>Normal — below 30%</span>
-        <span class="legend-item"><i class="swatch warning"></i>Warning — 30–69%</span>
-        <span class="legend-item"><i class="swatch critical"></i>Critical / Flooded — 70%+</span>
-        <span class="legend-note">Taller glowing block = deeper water · arrow = suggested evacuation direction</span>
-      </div>
-    </section>
-
-    <aside class="side-panel">
-
-      <div class="panel-block">
-        <div class="panel-block-head"><h2>Rainfall controls</h2></div>
-
-        <label class="slider-row" for="rainSlider">
-          <span>Intensity</span>
-          <input type="range" id="rainSlider" min="0" max="120" step="5" value="0">
-          <span class="slider-value" id="rainSliderValue">0 mm/hr</span>
-        </label>
-        <p class="slider-hint" id="rainHint">No rain</p>
-
-        <label class="slider-row" for="durationSlider">
-          <span>Hours of rain</span>
-          <input type="range" id="durationSlider" min="0" max="10" step="0.5" value="0">
-          <span class="slider-value" id="durationSliderValue">0.0 hr</span>
-        </label>
-
-        <div class="control-buttons">
-          <button id="runBtn" type="button">▶ Run simulation</button>
-          <button id="stepBtn" type="button">Step +15 min</button>
-          <button id="resetBtn" type="button">Reset</button>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <div class="panel-block-head">
-          <h2>Zone counts</h2>
-        </div>
-        <div class="count-row">
-          <span class="count normal" id="countNormal">64</span>
-          <span class="count warning" id="countWarning">0</span>
-          <span class="count critical" id="countCritical">0</span>
-        </div>
-      </div>
-
-      <div class="panel-block">
-        <div class="panel-block-head"><h2>Selected zone</h2></div>
-        <div id="cellDetail" class="cell-detail">Click any grid cell for its terrain data.</div>
-      </div>
-
-      <div class="panel-block alerts-block">
-        <div class="panel-block-head"><h2>Alerts &amp; evacuation</h2></div>
-        <div id="alertFeed" class="alert-feed">
-          <p class="alert-empty">No active alerts.</p>
-        </div>
-      </div>
-
-    </aside>
-
-  </main>
-
-  <p class="data-note">All rainfall, terrain and water-level values are simulated for demonstration — no live sensors connected.</p>
-
-</section>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="script.js"></script>
+    <!-- Application Script -->
+    <script src="script.js"></script>
 </body>
 </html>
