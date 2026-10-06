@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Urban Flood Nowcasting Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ SCREEN 1 : CITY SELECTION ============ -->
+<section id="citySelectScreen" class="screen">
+  <div class="select-wrap">
+    <p class="eyebrow">Software-only simulation · inspired by SIH 2026 PS 26085</p>
+    <h1>Urban Flood Nowcasting Simulator</h1>
+    <p class="select-sub">
+      Pick a city to load its street grid. Rainfall, terrain and drainage are simulated —
+      no real sensors, no live data feed. Everything below runs from the maths in
+      <code>script.js</code>.
+    </p>
+    <div class="city-grid" id="cityGrid"><!-- city cards injected by script.js --></div>
+  </div>
+</section>
+
+<!-- ============ SCREEN 2 : SIMULATOR ============ -->
+<section id="simulatorScreen" class="screen hidden">
+
+  <header class="topbar">
+    <div class="brand">
+      <button id="backBtn" class="back-btn" type="button" aria-label="Change city">←</button>
+      <div class="brand-text">
+        <h1 id="cityTitle">City</h1>
+        <p id="cityBlurb">—</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="status-pill" id="cityStatus">Normal</div>
+    </div>
+  </header>
+
+  <main class="layout">
+
+    <section class="grid-panel">
+      <div class="grid-panel-head">
+        <div class="readout">
+          <span class="readout-label">Rainfall</span>
+          <span class="readout-value" id="rainReadout">0 mm/hr</span>
+        </div>
+        <div class="readout">
+          <span class="readout-label">Duration</span>
+          <span class="readout-value" id="durationReadout">0.0 hr</span>
+        </div>
+        <div class="readout">
+          <span class="readout-label">Zones affected</span>
+          <span class="readout-value" id="affectedReadout">0 / 64</span>
+        </div>
+      </div>
+
+      <div class="scene-wrap">
+        <canvas id="sceneCanvas"></canvas>
+        <div id="labelsOverlay" class="labels-overlay"></div>
+        <p class="scene-hint">Drag to rotate · scroll to zoom · click a block for details</p>
+      </div>
+
+      <div class="legend">
+        <span class="legend-item"><i class="swatch normal"></i>Normal — below 30%</span>
+        <span class="legend-item"><i class="swatch warning"></i>Warning — 30–69%</span>
+        <span class="legend-item"><i class="swatch critical"></i>Critical / Flooded — 70%+</span>
+        <span class="legend-note">Taller glowing block = deeper water · arrow = suggested evacuation direction</span>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+
+      <div class="panel-block">
+        <div class="panel-block-head"><h2>Rainfall controls</h2></div>
+
+        <label class="slider-row" for="rainSlider">
+          <span>Intensity</span>
+          <input type="range" id="rainSlider" min="0" max="120" step="5" value="0">
+          <span class="slider-value" id="rainSliderValue">0 mm/hr</span>
+        </label>
+        <p class="slider-hint" id="rainHint">No rain</p>
+
+        <label class="slider-row" for="durationSlider">
+          <span>Hours of rain</span>
+          <input type="range" id="durationSlider" min="0" max="10" step="0.5" value="0">
+          <span class="slider-value" id="durationSliderValue">0.0 hr</span>
+        </label>
+
+        <div class="control-buttons">
+          <button id="runBtn" type="button">▶ Run simulation</button>
+          <button id="stepBtn" type="button">Step +15 min</button>
+          <button id="resetBtn" type="button">Reset</button>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="panel-block-head">
+          <h2>Zone counts</h2>
+        </div>
+        <div class="count-row">
+          <span class="count normal" id="countNormal">64</span>
+          <span class="count warning" id="countWarning">0</span>
+          <span class="count critical" id="countCritical">0</span>
+        </div>
+      </div>
+
+      <div class="panel-block">
+        <div class="panel-block-head"><h2>Selected zone</h2></div>
+        <div id="cellDetail" class="cell-detail">Click any grid cell for its terrain data.</div>
+      </div>
+
+      <div class="panel-block alerts-block">
+        <div class="panel-block-head"><h2>Alerts &amp; evacuation</h2></div>
+        <div id="alertFeed" class="alert-feed">
+          <p class="alert-empty">No active alerts.</p>
+        </div>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <p class="data-note">All rainfall, terrain and water-level values are simulated for demonstration — no live sensors connected.</p>
+
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
